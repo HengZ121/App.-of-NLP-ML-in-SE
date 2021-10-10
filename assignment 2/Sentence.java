@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.regex.Matcher;
@@ -17,24 +18,35 @@ import edu.stanford.nlp.simple.*;
 public class Sentence {
     /// 20 Features we want to extract from each sentence
     /// Details of each feature can be found in Word document A2-3Desciption
-    CoreDocument sentence;
-    int f1,f2,f3,f4,f5,f10,f15,f16;
+    List<CoreLabel> tokens;
+    int f1,f2,f3,f4,f5,f10,f15,f16, iterator;
     boolean f6,f8,f9,f11,f12,f13,f14,f17,f19,f20;
     ArrayList<String> f7 = new ArrayList<String>(8);
     ArrayList<String> f18 = new ArrayList<String>();
+    Sentence other_it_ocurrances = null; ///Need to be checked for every Sentence Object in order to get full extraction of repeated "it"s
     
 
 
     /***
     * Constructor
-    * @param CoreDocument sentence   Content of this object (already tokenized)
+    * @param List<CoreLabel> tokens   Content of this object (already tokenized)
+    * @param int iterator            Indicates the number of "it" in this sentence that should be extracted
+    * @version 2.0: Need to consider the case a sentence has multiple "it"
      */
-    public Sentence(CoreDocument sentence){
-        this.sentence = sentence;
+    public Sentence(List<CoreLabel> tokens, int iterator){
+        this.iterator = iterator;
+        this.tokens = tokens;
         int[] feature_1_to_3 = getF1_3();
         this.f1 = feature_1_to_3[0];
         this.f2 = feature_1_to_3[1];
         this.f3 = feature_1_to_3[2];
+        int[] feature_4_to_5 = getF4_5();
+        this.f4 = feature_4_to_5[0];
+        this.f5 = feature_4_to_5[1];
+    }
+
+    public Sentence(List<CoreLabel> tokens){
+        this(tokens, 1);
     }
 
     /***
@@ -42,17 +54,24 @@ public class Sentence {
     * Get the position of "it" in the sentence considering the number of tokens
     * Get the length of the sentence in terms of tokens
     * Get the number of punctuations
-    * @return int[5]   res[0] = -1 if no "it" in sentence; res[1] = -1 if sentence is invalid
+    * @return int[3]   res[0] = -1 if no "it" in sentence; res[1] = -1 if sentence is invalid
     * @version 2.0
     */
     private int[] getF1_3(){
         int[] res = {-1,-1,0};
         int counter = 0;
         int punctuations = 0;
+        int number_of_it_found = 0;
         
-        for (CoreLabel tok : this.sentence.tokens()) {
-            if (tok.word().toLowerCase().equals("it")){
-                res[0] = counter; /// Position of "it" F1 done
+        for (CoreLabel tok : this.tokens) {
+            if (tok.word().toLowerCase().equals("it")){ /// Found it
+                number_of_it_found ++;
+                if (number_of_it_found == this.iterator){ /// Found current iteration
+                    res[0] = counter; /// Position of "it" F1 done
+                }else if(number_of_it_found == (this.iterator + 1)){
+                    other_it_ocurrances = new Sentence(this.tokens, this.iterator+1);
+                }
+                
             }else if (Pattern.matches("\\p{Punct}", tok.word()) || tok.word().equals("...")){/// Use Pattern to check punctuations
                 punctuations ++;
             }
@@ -67,9 +86,42 @@ public class Sentence {
     * Feature 4 and 5
     * Get the number of preceding noun phrases
     * Get the number of noun phrases after "it"
-    * @return int[5]    -1 if no "it" in sentence
+    * @return int[2]
     * @version 1.0
     */
+    private int[] getF4_5(){
+        int[] res = new int[2];
+        int p_noun = 0;
+        int a_noun = 0;
+        for (int x = 1; x < this.f1; x++){
+            if (this.tokens.get(x).tag().contains("NN")){
+                p_noun ++;
+            }
+        }
+        for (int x = this.f1+1; x < this.tokens.size()-1; x++){
+            if (this.tokens.get(x).tag().contains("NN")){
+                a_noun ++;
+            }
+        }
+        res[0] = p_noun;
+        res[1] = a_noun;
+        return res;
+    }
+
+    /***
+    * Output Extracted Info. for each "it" word in sentence
+    * @version1.0: for testing propose
+    */
+    public void output(){
+        for (CoreLabel elem: tokens){
+            System.out.print(elem.word()+" ");
+        }
+        System.out.println();
+        System.out.println(this.f1+ " " + this.f2+ " " + this.f3+ " " + this.f4+ " " + this.f5); //// Testing
+        if (other_it_ocurrances != null){
+            other_it_ocurrances.output();
+        }
+    }
     
 
     /*** 
@@ -100,8 +152,8 @@ public class Sentence {
         for (String elem : sentences){
             CoreDocument to_be_tokenized = new CoreDocument(elem);
             pipeline.annotate(to_be_tokenized); /// Sentences Tokenized 
-            Sentence sentence = new Sentence(to_be_tokenized);
-            System.out.println(elem + " " + sentence.f1+ " " + sentence.f2+ " " + sentence.f3); //// Testing
+            Sentence sentence = new Sentence(to_be_tokenized.tokens());
+            sentence.output();
         }
     }
 }
