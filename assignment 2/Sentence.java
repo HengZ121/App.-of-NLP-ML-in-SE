@@ -63,6 +63,15 @@ public class Sentence {
         return res;
     }
 
+    /***
+    * Feature 4 and 5
+    * Get the number of preceding noun phrases
+    * Get the number of noun phrases after "it"
+    * @return int[5]    -1 if no "it" in sentence
+    * @version 1.0
+    */
+    
+
     /*** 
     * Main Function
     * @param String[] args   args[0] is the file name
@@ -84,7 +93,7 @@ public class Sentence {
 
         /// NLP setup
         Properties props = new Properties();
-        props.setProperty("annotators", "tokenize");
+        props.setProperty("annotators", "tokenize, pos");
         StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
 
         /// Create Sentence objects, process them using CoreNLP one by one
