@@ -84,7 +84,7 @@ public class Sentence {
 
         /// NLP setup
         Properties props = new Properties();
-        props.setProperty("annotators", "tokenize");
+        props.setProperty("annotators", "tokenize, ssplit, pos");
         StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
 
         /// Create Sentence objects, process them using CoreNLP one by one
