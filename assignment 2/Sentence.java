@@ -2,6 +2,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.lang.IndexOutOfBoundsException;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.List;
 import java.util.Arrays;
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.regex.Pattern;
 import edu.stanford.nlp.ling.*;
 import edu.stanford.nlp.pipeline.*;
 import edu.stanford.nlp.simple.*;
+import edu.stanford.nlp.trees.*;
 
 /***
 * @author Heng Zhang
@@ -27,7 +29,10 @@ public class Sentence {
     String[] f7 = new String[8];
     ArrayList<String> f18 = new ArrayList<String>();
     Sentence other_it_ocurrances = null; ///Need to be checked for every Sentence Object in order to get full extraction of repeated "it"s
-    
+
+    Tree tree;                         /// Tree used for Chunking (Constituency Parsing) 
+    Set<Constituent> treeConstituents; /// reference: https://nlp.stanford.edu/nlp/javadoc/javanlp-3.5.0/edu/stanford/nlp/trees/Tree.html
+
 
 
     /***
@@ -36,10 +41,12 @@ public class Sentence {
     * @param int iterator            Indicates the number of "it" in this sentence that should be extracted
     * @version 2.0: Considered the case a sentence has multiple "it"
      */
-    public Sentence(String class_label, List<CoreLabel> tokens, int iterator){
+    public Sentence(String class_label, List<CoreLabel> tokens, Tree tree, int iterator){
         this.iterator = iterator;
         this.class_label = class_label;
         this.tokens = tokens;
+        this.tree = tree;
+        this.treeConstituents = tree.constituents(new LabeledScoredConstituentFactory()); ///reference: https://stanfordnlp.github.io/CoreNLP/parse.html
         int[] feature_1_to_3 = getF1_3();
         this.f1 = feature_1_to_3[0];
         this.f2 = feature_1_to_3[1];
@@ -49,10 +56,18 @@ public class Sentence {
         this.f5 = feature_4_to_5[1];
         this.f6 = getF6();
         this.f7 = getF7();
+        boolean[] feature_8_to_9 = getF8_9();
+        this.f8 = feature_8_to_9[0];
+        this.f9 = feature_8_to_9[1];
+        this.f10 = getF10();
+        this.f11 = getF11();
+        boolean[] feature_12_to_13 = getF12_13();
+        this.f12 = feature_12_to_13[0];
+        this.f13 = feature_12_to_13[1];
     }
 
-    public Sentence(String class_label, List<CoreLabel> tokens){
-        this(class_label, tokens, 1);
+    public Sentence(String class_label, List<CoreLabel> tokens, Tree tree){
+        this(class_label, tokens, tree, 1);
     }
 
     /***
@@ -75,7 +90,7 @@ public class Sentence {
                 if (number_of_it_found == this.iterator){ /// Found current iteration
                     res[0] = counter; /// Position of "it" F1 done
                 }else if(number_of_it_found == (this.iterator + 1)){
-                    other_it_ocurrances = new Sentence(this.class_label, this.tokens, this.iterator+1);
+                    this.other_it_ocurrances = new Sentence(this.class_label, this.tokens, this.tree, this.iterator+1);
                 }
                 
             }else if (Pattern.matches("\\p{Punct}", tok.word()) || tok.word().equals("...")){/// Use Pattern to check punctuations
@@ -93,19 +108,18 @@ public class Sentence {
     * Get the number of preceding noun phrases
     * Get the number of noun phrases after "it"
     * @return int[2]
-    * @version 1.0
+    * @version 3.0
     */
     private int[] getF4_5(){
         int[] res = new int[2];
         int p_noun = 0;
         int a_noun = 0;
-        for (int x = 0; x < this.f1; x++){
-            if (this.tokens.get(x).tag().contains("NN")){
+        ArrayList<Constituent> list_of_NPs = this.getPs("NP");
+        for (Constituent constituent: list_of_NPs){
+            if (constituent.start() < (this.f1 - 1)){   // Case: Noun phrase preceding
+                // System.out.println(this.tree.getLeaves().subList(constituent.start(), constituent.end()+1)); // testing
                 p_noun ++;
-            }
-        }
-        for (int x = this.f1; x < this.tokens.size()-1; x++){
-            if (this.tokens.get(x).tag().contains("NN")){
+            }else if (constituent.start() > (this.f1 - 1)){                                     // Case: Noun phrase after
                 a_noun ++;
             }
         }
@@ -118,14 +132,14 @@ public class Sentence {
     * Feature 6
     * Test whether the pronoun “it” immediately follow a prepositional phrase
     * @return boolean
-    * @version 1.0
+    * @version 3.0
     */
     private boolean getF6(){
-        if (this.f1 == this.tokens.size()){ /// Case: It is the last word
-            return false;
-        }
-        if (this.tokens.get(this.f1).tag().equals("IN")){
-            return true;
+        ArrayList<Constituent> list_of_NPs = this.getPs("PP");
+        for (Constituent constituent: list_of_NPs){
+            if ((constituent.end() + 1) == (this.f1 - 1)){
+                return true;
+            }
         }
         return false;
     }
@@ -157,8 +171,78 @@ public class Sentence {
     }
 
     /***
+    * Feature 8 and 9
+    * Get whether occurrence of “it” followed by an -ing form of a verb
+    * Get whether occurrence of “it” followed by a preposition
+    * @return boolean[2]
+    * @version 1.0
+    */
+    private boolean[] getF8_9(){
+        String tag_of_word_follows_it = this.tokens.get(this.f1).tag();
+        if (tag_of_word_follows_it.equals("VBG")){
+            return new boolean[] {true, false};
+        }else if (tag_of_word_follows_it.equals("IN")){
+            return new boolean[] {false, true};
+        }else{
+            return new boolean[] {false, false};
+        }
+    }
+
+     /***
+    * Feature 10
+    * Get the number of adjectives that follow the occurrence of “it” in the sentence.
+    * @return int
+    * @version 1.0
+    */
+    private int getF10(){
+        int counter = 0;
+        for (int x = this.f1; x < this.tokens.size(); x++){
+            if (this.tokens.get(x).tag().contains("JJ")){
+                counter ++;
+            }
+        }
+        return counter;
+    }
+
+     /***
+    * Feature 11
+    * Check whether the pronoun “it” preceded by a verb
+    * @return int
+    * @version 1.0
+    */
+    private boolean getF11(){
+        for (int x = 0; x < (this.f1-1); x++){
+            if (this.tokens.get(x).tag().contains("VB")){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /***
+    * Feature 12 and 13
+    * F12	Is the pronoun “it” followed by a verb? (Yes/No)
+    * F13	Is the pronoun “it” followed by an adjective? (Yes/No)
+    * @return int
+    * @version 1.0
+    */
+    private boolean[] getF12_13(){
+        boolean[] res = new boolean[2];
+        for (int x = this.f1; x < this.tokens.size(); x++){
+            if (this.tokens.get(x).tag().contains("VB")){
+                res[0] = true;
+            }else if (this.tokens.get(x).tag().contains("JJ")){
+                res[1] = true;
+            }
+        }
+        return res;
+    }
+
+
+
+    /***
     * Output Extracted Info. for each "it" word in sentence
-    * @version1.0: for testing propose
+    * @version 1.0: for testing propose
     */
     public void output(){
         for (CoreLabel elem: this.tokens){
@@ -166,19 +250,50 @@ public class Sentence {
         }
         System.out.println();
         System.out.println(this.class_label + "," +this.f1+ "," + this.f2+ "," + this.f3+ "," + this.f4+ "," + 
-            this.f5+ "," + this.f6 + "," + Arrays.toString(this.f7)); //// Testing
+            this.f5+ "," + this.f6 + "," + Arrays.toString(this.f7) + "," + this.f8 + "," + this.f9+ "," + this.f10
+            + "," + this.f11 + "," + this.f12 + "," + this.f13); //// Testing
         if (other_it_ocurrances != null){
             other_it_ocurrances.output();
         }
     }
-    
+
+    /***
+    * Check whether a type of Phrase can be found, phrase type is specified as parameter; e.g. NP, VP
+    * @param String phrase name
+    * @return constituent[]
+    * @version 2.0: Design for future reuse
+    * @referencn https://nlp.stanford.edu/nlp/javadoc/javanlp-3.5.0/edu/stanford/nlp/trees/Constituent.html
+    */
+    public ArrayList<Constituent> getPs(String phrase_type){
+        ArrayList<Constituent> res = new ArrayList<Constituent>();
+        for (Constituent constituent : this.treeConstituents){
+            if ( (constituent.label() != null) && (constituent.label().toString().equals(phrase_type))){
+                if (constituent.size() != 0){ /// filter the word (phrases are considered composited of at least 2 words)
+
+                    /// filter Phrases that are't atomic
+                    boolean is_atomic = true;
+                    for (Constituent elem : res){
+                        if (elem.start() == constituent.start()){ // Case this constituent is not atomic (shares the same start with a shorter another)
+                            is_atomic = false;
+                        }
+                    }
+                    if(is_atomic){
+                        res.add(constituent);
+                    }
+                }
+            }
+        }
+        return res;
+    }
+
+
 
     /*** 
     * Main Function
     * @param String[] args   args[0] is the file name
     * @return Nothing
     * @see FileNotFoundException
-    * @version 2.0: Splitting Labels from Sentence
+    * @version 3.0: Splitting Labels from Sentence, removing redundant sentences
     */ 
     public static void main(String[] args) throws FileNotFoundException{
 
@@ -190,21 +305,24 @@ public class Sentence {
         ArrayList<String> class_labels = new ArrayList<String>();
         scanner.nextLine();
         while (scanner.hasNextLine()){
-            String sentence[] = scanner.nextLine().split("\t");
-            class_labels.add(sentence[0]);
-            sentences.add(sentence[1]);
+            String[] sentence = scanner.nextLine().split("\t");
+            if (!sentences.contains(sentence[1])){ /// Remove Redundant Sentences
+                class_labels.add(sentence[0]);
+                sentences.add(sentence[1]);
+            }
         }
 
         /// NLP setup
         Properties props = new Properties();
-        props.setProperty("annotators", "tokenize, ssplit, pos");
+        props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, parse");
         StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
 
         /// Create Sentence objects, process them using CoreNLP one by one
         for (int x = 0; x < sentences.size(); x ++){
             CoreDocument to_be_tokenized = new CoreDocument(sentences.get(x));
             pipeline.annotate(to_be_tokenized); /// Sentences Tokenized 
-            Sentence sentence = new Sentence(class_labels.get(x), to_be_tokenized.tokens());
+            Sentence sentence = new Sentence(class_labels.get(x), to_be_tokenized.tokens(), 
+                to_be_tokenized.annotation().get(CoreAnnotations.SentencesAnnotation.class).get(0).get(TreeCoreAnnotations.TreeAnnotation.class));
             sentence.output();
         }
     }

@@ -138,7 +138,6 @@ NomAnaph	It  was  rather  a  curious  document.
 NomAnaph	A  plain,  dirty  looking  old  envelope  with  a  few  words  scrawled  across  it,  apparently  at  random. 
 NomAnaph	The  following  is  a  facsimile  of  it. 
 NomAnaph	Yes,  it  is  Mr.s.  Inglethorp's. 
-NomAnaph	But  what  does  it  mean? 
 NomAnaph	I  cannot  say...but  it  is  suggestive. 
 ClauseAnaph	Is  it  a  bargain? 
 NomAnaph	I  saw  him  put  it  down  there. 
@@ -178,8 +177,7 @@ NomAnaph	John,  I  think,  would  have  pressed  his  questions  further,  but  
 NomAnaph	How  soon,  and  how  contemptuously,  I  had  dismissed  it  from  my  mind. 
 ClauseAnaph	Now  he's  done  it. 
 ClauseAnaph	Find  out  how  he  did  it. 
-ClauseAnaph	Don't  think  she  ever  realized  it,  though,  or  felt  the  lack  of  it. 
-NomAnaph	Don't  think  she  ever  realized  it,  though,  or  felt  the  lack  of  it. 
+ClauseAnaph	Don't  think  she  ever  realized  it,  though,  or  felt  the  lack  of  it.  
 NomAnaph	Taking  the  keys  from  Poirot,  John  unlocked  it,  and  we  all  passed  in. 
 NomAnaph	I  locked  it,  out  of  precaution,  this  morning. 
 NomAnaph	But  it's  not  locked  now. 
@@ -408,7 +406,6 @@ NomAnaph	You  do  not  know  if  it  was  sent  after  Mr.  Lawrence  Cavendish 
 NomAnaph	You  do  not  know  if  it  was  sent  after  Mr.  Lawrence  Cavendish  to  Wales,  or  whether  it  was  put  in  his  room? 
 NomAnaph	Don't  think  it  was  sent  after  him. 
 ClauseAnaph	Should  have  remembered  it  if  it  was. 
-NomAnaph	Should  have  remembered  it  if  it  was. 
 NomAnaph	Supposing  a  parcel  arrived  addressed  to  Mr.  Lawrence  Cavendish,  and  afterwards  it  disappeared,  should  you  remark  its  absence? 
 NomAnaph	I  should  think  some  one  had  taken  charge  of  it. 
 NomAnaph	How  did  you  come  to  look  for  it? 
