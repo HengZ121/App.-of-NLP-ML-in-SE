@@ -17,12 +17,13 @@ import edu.stanford.nlp.trees.*;
 /***
 * @author Heng Zhang
 * @since 2021-10-08
+* This is a Java script extracts 20 features, which are specified in A2-3 description, from a given text corpus using coreNLP
  */
 
 public class Sentence {
     /// 20 Features we want to extract from each sentence
     /// Details of each feature can be found in Word document A2-3Desciption
-    String class_label; /// either ClauseAnaph or NomAnaph
+    String class_label, content; /// either ClauseAnaph or NomAnaph
     List<CoreLabel> tokens;
     int f1,f2,f3,f4,f5,f10,f15,f16, iterator;
     boolean f6,f8,f9,f11,f12,f13,f14,f17,f19,f20;
@@ -39,11 +40,12 @@ public class Sentence {
     * Constructor
     * @param List<CoreLabel> tokens   Content of this object (already tokenized)
     * @param int iterator            Indicates the number of "it" in this sentence that should be extracted
-    * @version 2.0: Considered the case a sentence has multiple "it"
+    * @version 3.0: Considered the case a sentence has multiple "it"
      */
-    public Sentence(String class_label, List<CoreLabel> tokens, Tree tree, int iterator){
+    public Sentence(String class_label, List<CoreLabel> tokens, String content, Tree tree, int iterator){
         this.iterator = iterator;
         this.class_label = class_label;
+        this.content = content;
         this.tokens = tokens;
         this.tree = tree;
         this.treeConstituents = tree.constituents(new LabeledScoredConstituentFactory()); ///reference: https://stanfordnlp.github.io/CoreNLP/parse.html
@@ -64,10 +66,14 @@ public class Sentence {
         boolean[] feature_12_to_13 = getF12_13();
         this.f12 = feature_12_to_13[0];
         this.f13 = feature_12_to_13[1];
+        this.f14 = getF14();
+        this.f15 = getF15();
+        this.f16 = getF16();
+        this.f17 = getF17();
     }
 
-    public Sentence(String class_label, List<CoreLabel> tokens, Tree tree){
-        this(class_label, tokens, tree, 1);
+    public Sentence(String class_label, List<CoreLabel> tokens, String content, Tree tree){
+        this(class_label, tokens, content, tree, 1);
     }
 
     /***
@@ -90,7 +96,7 @@ public class Sentence {
                 if (number_of_it_found == this.iterator){ /// Found current iteration
                     res[0] = counter; /// Position of "it" F1 done
                 }else if(number_of_it_found == (this.iterator + 1)){
-                    this.other_it_ocurrances = new Sentence(this.class_label, this.tokens, this.tree, this.iterator+1);
+                    this.other_it_ocurrances = new Sentence(this.class_label, this.tokens, this.content, this.tree, this.iterator+1);
                 }
                 
             }else if (Pattern.matches("\\p{Punct}", tok.word()) || tok.word().equals("...")){/// Use Pattern to check punctuations
@@ -116,8 +122,7 @@ public class Sentence {
         int a_noun = 0;
         ArrayList<Constituent> list_of_NPs = this.getPs("NP");
         for (Constituent constituent: list_of_NPs){
-            if (constituent.start() < (this.f1 - 1)){   // Case: Noun phrase preceding
-                // System.out.println(this.tree.getLeaves().subList(constituent.start(), constituent.end()+1)); // testing
+            if (constituent.start() < (this.f1 - 1)){   // Case: Noun phrase preceding-+
                 p_noun ++;
             }else if (constituent.start() > (this.f1 - 1)){                                     // Case: Noun phrase after
                 a_noun ++;
@@ -238,20 +243,93 @@ public class Sentence {
         return res;
     }
 
+    /***
+    * Feature 14
+    * True if there is a noun phrase coming after the pronoun “it” 
+    * and that noun phrase contains an adjective, otherwise false.
+    * @return boolean
+    * @version 1.0
+     */
+     private boolean getF14(){
+        ArrayList<Constituent> list_of_NPs = this.getPs("NP");
+        for (Constituent constituent: list_of_NPs){
+           if (constituent.start() > (this.f1 - 1)){
+                for (int x = constituent.start(); x <= constituent.end(); x++){
+                    if(this.tokens.get(x).tag().contains("JJ")){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+     }
 
+     /***
+    * Feature 15
+    * The number of tokens coming before the following infinitive verb (if there is one), otherwise 0.
+    * Based on my personal limited understanding of material, the target the following infinitive verb
+    * means that the infinitive verb after "it"
+    * @return int
+    * @version 1.0
+     */
+    private int getF15(){
+        /// the number of tokens coming before the infinitive verb = tokens before "it" + tokens between "it" and verb
+        for (int counter = this.f1; counter < this.tokens.size() - 1; counter++){
+            if (this.tokens.get(counter).word().toLowerCase().equals("to")){
+                if (this.tokens.get(counter + 1).tag().equals("VB")){ /// infinitive verb found
+                    return counter;
+                }
+            }
+        }
+        return 0;
+    }
+
+     /***
+    * Feature 16
+    * The number of tokens that appear between the pronoun “it” and the first following preposition 
+    * (if there is a following preposition), otherwise 0.
+    * @return int
+    * @version 1.0
+     */
+    private int getF16(){
+        for (int counter = this.f1; counter < this.tokens.size(); counter++){
+            if (this.tokens.get(counter).tag().equals("IN")){
+                return counter - this.f1;
+            }
+        }
+        return 0;
+    }
+
+    /***
+    * Feature 17
+    * True if there a sequence “adjective + noun phrase” following the pronoun “it”, and false otherwise.
+    *
+    * I personally don't think this would happen in a grammatically correct sentence. ￣Д￣＝３
+    * @return boolean
+    * @version 1.0
+     */
+    private boolean getF17(){
+        ArrayList<Constituent> list_of_NPs = this.getPs("NP");
+        for (Constituent constituent: list_of_NPs){
+           if (constituent.start() > (this.f1 - 1)){
+                if (this.tokens.get(constituent.start() - 1).tag().contains("JJ")){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     /***
     * Output Extracted Info. for each "it" word in sentence
-    * @version 1.0: for testing propose
+    * @version 2.0: for testing propose
     */
     public void output(){
-        for (CoreLabel elem: this.tokens){
-            System.out.print(elem.word()+" ");
-        }
-        System.out.println();
+        System.out.println(this.content);
         System.out.println(this.class_label + "," +this.f1+ "," + this.f2+ "," + this.f3+ "," + this.f4+ "," + 
             this.f5+ "," + this.f6 + "," + Arrays.toString(this.f7) + "," + this.f8 + "," + this.f9+ "," + this.f10
-            + "," + this.f11 + "," + this.f12 + "," + this.f13); //// Testing
+            + "," + this.f11 + "," + this.f12 + "," + this.f13 + "," + this.f14+ "," + this.f15 + "," + this.f16 +
+            "," + this.f17); //// Testing
         if (other_it_ocurrances != null){
             other_it_ocurrances.output();
         }
@@ -321,7 +399,7 @@ public class Sentence {
         for (int x = 0; x < sentences.size(); x ++){
             CoreDocument to_be_tokenized = new CoreDocument(sentences.get(x));
             pipeline.annotate(to_be_tokenized); /// Sentences Tokenized 
-            Sentence sentence = new Sentence(class_labels.get(x), to_be_tokenized.tokens(), 
+            Sentence sentence = new Sentence(class_labels.get(x), to_be_tokenized.tokens(), sentences.get(x),
                 to_be_tokenized.annotation().get(CoreAnnotations.SentencesAnnotation.class).get(0).get(TreeCoreAnnotations.TreeAnnotation.class));
             sentence.output();
         }
