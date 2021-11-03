@@ -1,6 +1,9 @@
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.FileNotFoundException;
 import java.lang.IndexOutOfBoundsException;
+import java.lang.NullPointerException;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.List;
@@ -13,11 +16,28 @@ import edu.stanford.nlp.ling.*;
 import edu.stanford.nlp.pipeline.*;
 import edu.stanford.nlp.simple.*;
 import edu.stanford.nlp.trees.*;
+import edu.stanford.nlp.semgraph.*;
+
+import java.net.URL;
+import java.net.MalformedURLException;
+import edu.mit.jwi.*;
+import edu.mit.jwi.item.POS;
+import edu.mit.jwi.item.IWord;
+import edu.mit.jwi.item.IWordID;
+import edu.mit.jwi.item.IIndexWord;
 
 /***
 * @author Heng Zhang
 * @since 2021-10-08
 * This is a Java script extracts 20 features, which are specified in A2-3 description, from a given text corpus using coreNLP
+* The functions implemented in this file may not be in the simplest way, but they are very specific and are designed for reusability
+*
+* Also, to be honest, JWNL, which is recommended on the WordNet Official Website is the worst API I have ever dealt with; it comes with 
+* absolutely useless third party documentation, and its properties file needs to be modified to work (no guidance is available through the entire process) 
+* This really sad Stack-overflow Oriented Programing will no doubt take you longer time in environment set-up/adjustment whenever    
+* something has changed. OMG, JWNL doesn't have features to access the lexical file as well (σ｀д′)σ ノ "ᶠᵘᶜᵏ"
+*
+* So I finally turned to JWI and decided to use it as my WordNet API
  */
 
 public class Sentence {
@@ -25,30 +45,36 @@ public class Sentence {
     /// Details of each feature can be found in Word document A2-3Desciption
     String class_label, content; /// either ClauseAnaph or NomAnaph
     List<CoreLabel> tokens;
+    Tree tree;                         /// Tree used for Chunking (Constituency Parsing) 
+    Set<Constituent> treeConstituents; /// API reference: https://nlp.stanford.edu/nlp/javadoc/javanlp-3.5.0/edu/stanford/nlp/trees/Tree.html
+    SemanticGraph dependency_parse;    /// Dependency parsing tree; details in F18
+    IDictionary dict;
+
     int f1,f2,f3,f4,f5,f10,f15,f16, iterator;
     boolean f6,f8,f9,f11,f12,f13,f14,f17,f19,f20;
     String[] f7 = new String[8];
     ArrayList<String> f18 = new ArrayList<String>();
     Sentence other_it_ocurrances = null; ///Need to be checked for every Sentence Object in order to get full extraction of repeated "it"s
 
-    Tree tree;                         /// Tree used for Chunking (Constituency Parsing) 
-    Set<Constituent> treeConstituents; /// reference: https://nlp.stanford.edu/nlp/javadoc/javanlp-3.5.0/edu/stanford/nlp/trees/Tree.html
-
-
-
     /***
     * Constructor
-    * @param List<CoreLabel> tokens   Content of this object (already tokenized)
-    * @param int iterator            Indicates the number of "it" in this sentence that should be extracted
+    * @param String class_label       Class label of "it"
+    * @param List<CoreLabel> tokens   tokenized sentence
+    * @param String content           Original Sentence (not tokenized)
+    * @param Tree tree                Constituency Parsing Tree
+    * @param 
+    * @param int iterator             Indicates the number of "it" in this sentence that should be extracted
     * @version 3.0: Considered the case a sentence has multiple "it"
      */
-    public Sentence(String class_label, List<CoreLabel> tokens, String content, Tree tree, int iterator){
+    public Sentence(String class_label, List<CoreLabel> tokens, String content, Tree tree, SemanticGraph dependency_parse, IDictionary dict, int iterator){
         this.iterator = iterator;
         this.class_label = class_label;
         this.content = content;
         this.tokens = tokens;
         this.tree = tree;
         this.treeConstituents = tree.constituents(new LabeledScoredConstituentFactory()); ///reference: https://stanfordnlp.github.io/CoreNLP/parse.html
+        this.dependency_parse = dependency_parse;
+        this.dict = dict;
         int[] feature_1_to_3 = getF1_3();
         this.f1 = feature_1_to_3[0];
         this.f2 = feature_1_to_3[1];
@@ -70,10 +96,13 @@ public class Sentence {
         this.f15 = getF15();
         this.f16 = getF16();
         this.f17 = getF17();
+        this.f18 = getF18();
+        this.f19 = getF19();
+        this.f20 = getF20();
     }
 
-    public Sentence(String class_label, List<CoreLabel> tokens, String content, Tree tree){
-        this(class_label, tokens, content, tree, 1);
+    public Sentence(String class_label, List<CoreLabel> tokens, String content, Tree tree, SemanticGraph dependency_parse, IDictionary dict){
+        this(class_label, tokens, content, tree, dependency_parse, dict, 1);
     }
 
     /***
@@ -96,7 +125,7 @@ public class Sentence {
                 if (number_of_it_found == this.iterator){ /// Found current iteration
                     res[0] = counter; /// Position of "it" F1 done
                 }else if(number_of_it_found == (this.iterator + 1)){
-                    this.other_it_ocurrances = new Sentence(this.class_label, this.tokens, this.content, this.tree, this.iterator+1);
+                    this.other_it_ocurrances = new Sentence(this.class_label, this.tokens, this.content, this.tree, this.dependency_parse, this.dict, this.iterator+1);
                 }
                 
             }else if (Pattern.matches("\\p{Punct}", tok.word()) || tok.word().equals("...")){/// Use Pattern to check punctuations
@@ -321,18 +350,126 @@ public class Sentence {
     }
 
     /***
-    * Output Extracted Info. for each "it" word in sentence
-    * @version 2.0: for testing propose
-    */
-    public void output(){
-        System.out.println(this.content);
-        System.out.println(this.class_label + "," +this.f1+ "," + this.f2+ "," + this.f3+ "," + this.f4+ "," + 
-            this.f5+ "," + this.f6 + "," + Arrays.toString(this.f7) + "," + this.f8 + "," + this.f9+ "," + this.f10
-            + "," + this.f11 + "," + this.f12 + "," + this.f13 + "," + this.f14+ "," + this.f15 + "," + this.f16 +
-            "," + this.f17); //// Testing
-        if (other_it_ocurrances != null){
-            other_it_ocurrances.output();
+    * Feature 18
+    * The dependency relation type with the closest word to which “it” is associated as a dependent.
+    *
+    * My personnaly analysis of this feature:
+    *   find the relation which has "it" as dependent ---> return all dependencies that linked to independent
+    *
+    * @return boolean
+    * @version 1.0
+    * API reference: https://stanfordnlp.github.io/stanfordnlp/depparse.html
+    *                https://nlp.stanford.edu/nlp/javadoc/javanlp/edu/stanford/nlp/semgraph/SemanticGraph.html
+    *                https://nlp.stanford.edu/nlp/javadoc/javanlp/edu/stanford/nlp/semgraph/SemanticGraphEdge.html
+     */
+    private ArrayList<String> getF18(){
+        ArrayList<String> res = new ArrayList<String>();
+        List<SemanticGraphEdge> list_of_edges = dependency_parse.edgeListSorted();
+
+        /// Found all the dependency relationships whose dependent is "it" (with correct position)
+        ArrayList<Integer> index_of_all_governors = new ArrayList<Integer>(); /// List of governors of dependent "it"
+        for (SemanticGraphEdge elem : list_of_edges){
+            if (elem.getDependent().index() == this.f1){ 
+                index_of_all_governors.add(elem.getGovernor().index());
+            }
         }
+
+        /// Sort the array of depedency relationships based on their distance to "it"
+        index_of_all_governors.sort( (o1, o2) -> {
+            if (Math.abs( ((int) o1) - this.f1) > Math.abs( ((int) o2) - this.f1)){
+                return 1;
+            }else if (Math.abs( ((int) o1) - this.f1) == Math.abs( ((int) o2) - this.f1)){
+                return 0;
+            }else{
+                return -1;
+            }
+        });
+
+        /// Find the cloest governor to "it"
+        int target_governor;
+        try{
+            target_governor = index_of_all_governors.get(0);
+        }catch(IndexOutOfBoundsException e){
+            return res;
+        }
+
+        /// Find all dependency types that governor has in the sentence
+        for (SemanticGraphEdge elem : list_of_edges){
+            if ( (elem.getDependent().index() == target_governor) || (elem.getGovernor().index() == target_governor) ){ 
+                res.add(elem.getRelation().toString());
+            }
+        }
+
+        return res;
+    }
+
+    /***
+    * Feature 19
+    * True if the immediately following verb belongs to the category “weather adjectives”, and false otherwise.	
+    * hint: check whether any sense of the verb following “it” belongs to the lexical file “verb.weather” in WordNet
+    * @return boolean
+    * @version 1.0
+     */
+    private boolean getF19(){
+        for (int x = this.f1; x < this.tokens.size(); x++){
+            if (this.tokens.get(x).tag().contains("VB")){ /// immediately following verb found
+                IIndexWord verb = this.dict.getIndexWord(this.tokens.get(x).lemma(), POS.VERB); /// search that word in WordNet
+                try{
+                    for (IWordID verb_id : verb.getWordIDs()){ /// Get all word IDs of that verb (Get all definitions)
+                        if (dict.getWord(verb_id).getSynset().getLexicalFile().getName().equals("verb.weather")){
+                            return true;
+                        }
+                    }
+                }catch (NullPointerException e){
+                    return false; /// Case that the word is not recorded in WordNet; e.g., relock. But I don't believe they can be related to weather
+                }
+                break;
+            }
+        }
+        return false;
+    }
+
+    /***
+    * Feature 20
+    * True if the immediately following verb belongs to the category of cognitive verbs, and false otherwise. 
+    * hint: check whether any sense of the verb following “it” belongs to the lexical file “verb.cognition” in WordNet
+    * @return boolean
+    * @version 1.0
+     */
+    private boolean getF20(){
+        for (int x = this.f1; x < this.tokens.size(); x++){
+            if (this.tokens.get(x).tag().contains("VB")){ /// immediately following verb found
+                IIndexWord verb = this.dict.getIndexWord(this.tokens.get(x).lemma(), POS.VERB); /// search that word in WordNet
+                try{
+                    for (IWordID verb_id : verb.getWordIDs()){ /// Get all word IDs of that verb (Get all definitions)
+                        if (dict.getWord(verb_id).getSynset().getLexicalFile().getName().equals("verb.cognition")){
+                            return true;
+                        }
+                    }
+                }catch (NullPointerException e){
+                    return false; /// Case that the word is not recorded in WordNet; e.g., relock. But I don't believe they can be related to cognition”
+                }
+                break;
+            }
+        }
+        return false;
+    }
+
+    /***
+    * Output Extracted Info. for each "it" word in sentence
+    * @version 3.0: Adapted for csv format
+    */
+    public String output(){
+        String res = ("\"" + this.content +"\"" + "," +
+            this.class_label + "," + this.f1 + "," + this.f2+ "," + this.f3+ "," + this.f4+ "," + 
+            this.f5+ "," + this.f6 + "," + "\"" + Arrays.toString(this.f7).replace("[","").replace("]","") +"\"" + "," + 
+            this.f8 + "," + this.f9+ "," + this.f10 + "," + this.f11 + "," + this.f12 + "," + this.f13 + "," + this.f14 + 
+            "," + this.f15 + "," + this.f16 + "," + this.f17 + "," + ("\"" + this.f18 +"\"").replace("[","").replace("]","") + 
+            "," + this.f19 + "," + this.f20 + "\n");
+        if (other_it_ocurrances != null){
+            res= res + other_it_ocurrances.output();
+        }
+        return res;
     }
 
     /***
@@ -340,7 +477,7 @@ public class Sentence {
     * @param String phrase name
     * @return constituent[]
     * @version 2.0: Design for future reuse
-    * @referencn https://nlp.stanford.edu/nlp/javadoc/javanlp-3.5.0/edu/stanford/nlp/trees/Constituent.html
+    * API reference https://nlp.stanford.edu/nlp/javadoc/javanlp-3.5.0/edu/stanford/nlp/trees/Constituent.html
     */
     public ArrayList<Constituent> getPs(String phrase_type){
         ArrayList<Constituent> res = new ArrayList<Constituent>();
@@ -371,7 +508,12 @@ public class Sentence {
     * @param String[] args   args[0] is the file name
     * @return Nothing
     * @see FileNotFoundException
-    * @version 3.0: Splitting Labels from Sentence, removing redundant sentences
+    * @version 4.0: Splitted Labels from Sentence, removed redundant sentences, added dependency parsing into pipeline
+    *
+    * Note: constituent tree can be casted by simply calling to_be_tokenized.sentences().get(0).constituencyParse()
+    *           Above code converts the coreDocument objects to coreSentence objects and then parse using coreSentence's method,
+    *           and in this case, since there is only one sentence in our coreDocument, it is sufficient to use .get(0) 
+    *           instead of looping through the coreDocument 
     */ 
     public static void main(String[] args) throws FileNotFoundException{
 
@@ -386,22 +528,53 @@ public class Sentence {
             String[] sentence = scanner.nextLine().split("\t");
             if (!sentences.contains(sentence[1])){ /// Remove Redundant Sentences
                 class_labels.add(sentence[0]);
-                sentences.add(sentence[1]);
+                sentences.add(sentence[1].replace("Mr.s.", "Mrs"));
             }
         }
 
         /// NLP setup
         Properties props = new Properties();
-        props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, parse");
+        props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, parse, depparse");
         StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
 
-        /// Create Sentence objects, process them using CoreNLP one by one
-        for (int x = 0; x < sentences.size(); x ++){
-            CoreDocument to_be_tokenized = new CoreDocument(sentences.get(x));
-            pipeline.annotate(to_be_tokenized); /// Sentences Tokenized 
-            Sentence sentence = new Sentence(class_labels.get(x), to_be_tokenized.tokens(), sentences.get(x),
-                to_be_tokenized.annotation().get(CoreAnnotations.SentencesAnnotation.class).get(0).get(TreeCoreAnnotations.TreeAnnotation.class));
-            sentence.output();
-        }
+        /// WordNet setup
+        try{
+            URL url = new URL ("file", null, "D:\\WordNet\\dict");
+             try{
+                IDictionary dict = new Dictionary(url);
+                dict.open();
+                try{
+                    /// Writer setup (for outputting)
+                    FileWriter writer = new FileWriter(new File("result.csv"));
+                    /// Create Sentence objects, process them using CoreNLP one by one
+                    for (int x = 0; x < sentences.size(); x ++){
+                        CoreDocument to_be_tokenized = new CoreDocument(sentences.get(x));
+                        pipeline.annotate(to_be_tokenized); /// Sentences Tokenized 
+                        Sentence sentence = new Sentence(class_labels.get(x), to_be_tokenized.tokens(), sentences.get(x),
+                            to_be_tokenized.annotation().get(CoreAnnotations.SentencesAnnotation.class).get(0).get(TreeCoreAnnotations.TreeAnnotation.class),
+                            to_be_tokenized.sentences().get(0).dependencyParse(), dict);
+                        writer.write(sentence.output());
+                    }
+                    writer.close();
+                }catch (IOException e){
+                    System.out.println("Error: Cannot create result file!");
+                }
+            }catch(IOException e){
+                System.out.println("Error: Cannot find wordnet dictionary using the specified URL address!");
+                System.out.println("Please make sure you downloaded the wordnet dictionary and modify line 529 to the directory of that dictionary");
+            }
+        }catch (MalformedURLException e){
+            System.out.println("Error: Invalid URL, please modify line 529 to reset a URL");
+        }        
     }
 }
+/**
+Citations:
+	1. Princeton University, 2010, About WordNet,  Available: https://wordnet.princeton.edu/.
+	2. Manning, Christopher D., Mihai Surdeanu, John Bauer, Jenny Finkel, Steven J. Bethard, and David McClosky. 2014. 
+The Stanford CoreNLP Natural Language Processing Toolkit In Proceedings of the 52nd Annual Meeting of the Association 
+for Computational Linguistics: System Demonstrations, pp. 55-60. 
+    3. Finlayson, Mark Alan (2014) Java Libraries for Accessing the Princeton Wordnet: Comparison and Evaluation. In H. 
+Orav, C. Fellbaum, & P. Vossen (Eds.), Proceedings of the 7th International Global WordNet Conference (GWC 2014) 
+(pp. 78-85). Tartu, Estonia.
+ */
