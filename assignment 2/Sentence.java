@@ -415,7 +415,7 @@ public class Sentence {
             if (this.tokens.get(x).tag().contains("VB")){ /// immediately following verb found
                 IIndexWord verb = this.dict.getIndexWord(this.tokens.get(x).lemma(), POS.VERB); /// search that word in WordNet
                 try{
-                    for (IWordID verb_id : verb.getWordIDs()){ /// Get all word IDs of that verb (Get all definitions)
+                    for (IWordID verb_id : verb.getWordIDs()){ /// Get all word IDs of that verb (Get all senses)
                         if (dict.getWord(verb_id).getSynset().getLexicalFile().getName().equals("verb.weather")){
                             return true;
                         }
@@ -441,7 +441,7 @@ public class Sentence {
             if (this.tokens.get(x).tag().contains("VB")){ /// immediately following verb found
                 IIndexWord verb = this.dict.getIndexWord(this.tokens.get(x).lemma(), POS.VERB); /// search that word in WordNet
                 try{
-                    for (IWordID verb_id : verb.getWordIDs()){ /// Get all word IDs of that verb (Get all definitions)
+                    for (IWordID verb_id : verb.getWordIDs()){ /// Get all word IDs of that verb (Get all senses)
                         if (dict.getWord(verb_id).getSynset().getLexicalFile().getName().equals("verb.cognition")){
                             return true;
                         }
