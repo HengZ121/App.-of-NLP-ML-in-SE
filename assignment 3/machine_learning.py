@@ -68,9 +68,9 @@ for x in range(0,10):
     res_of_rf.append(cal_acc(clf_rf.classify_many(testing_features), testing_labels))
     print("Accuracy of Random Forest: %f" %(cal_acc(clf_rf.classify_many(testing_features), testing_labels)))
     res_of_lr.append(cal_acc(clf_lr.classify_many(testing_features), testing_labels))
-    print("Accuracy of Random Forest: %f" %(cal_acc(clf_lr.classify_many(testing_features), testing_labels)))
+    print("Accuracy of Logistic Regression: %f" %(cal_acc(clf_lr.classify_many(testing_features), testing_labels)))
     res_of_svm.append(cal_acc(clf_svm.classify_many(testing_features), testing_labels))
-    print("Accuracy of Random Forest: %f" %(cal_acc(clf_svm.classify_many(testing_features), testing_labels)))
+    print("Accuracy of Support Vector Machine: %f" %(cal_acc(clf_svm.classify_many(testing_features), testing_labels)))
 
 print("Average Accuracy of Decision Tree: %f" %(statistics.mean(res_of_dt)))
 print("Average Accuracy of Random Forest: %f" %(statistics.mean(res_of_rf)))
