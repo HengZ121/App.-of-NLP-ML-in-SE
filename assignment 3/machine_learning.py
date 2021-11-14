@@ -1,7 +1,12 @@
 import csv
+import numpy
 import statistics
 from sklearn import tree
+from sklearn.svm import SVC
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
 from nltk.classify.scikitlearn import SklearnClassifier
 
 ### Read data from csv
@@ -34,12 +39,17 @@ print("Dataset Loaded.")
 
 res_of_dt = []
 res_of_rf = []
+res_of_lr = []
+res_of_svm = []
 
+### Classifications
 testing_set_length = int(len(features)/10)
 for x in range(0,10):
     print("#%d iteration of 10 fold cross val:" %(x+1))
-    clf_dt = SklearnClassifier(tree.DecisionTreeClassifier())
-    clf_rf = SklearnClassifier(RandomForestClassifier())
+    clf_dt = SklearnClassifier(tree.DecisionTreeClassifier()) # Decision Tree
+    clf_rf = SklearnClassifier(RandomForestClassifier())      # Random Forest
+    clf_lr = SklearnClassifier(LogisticRegression())          # Logistic Regression
+    clf_svm = SklearnClassifier(make_pipeline(StandardScaler(with_mean=False), SVC(gamma='auto'))) # Support Vector Machine
     training_set = []
     testing_features = features[x * testing_set_length : x * testing_set_length + testing_set_length]
     testing_labels = labels[x * testing_set_length : x * testing_set_length + testing_set_length]
@@ -49,10 +59,25 @@ for x in range(0,10):
         training_set.append((features[y], labels[y]))
     clf_dt = clf_dt.train(training_set)
     clf_rf = clf_rf.train(training_set)
+    clf_lr = clf_lr.train(training_set)
+    clf_svm = clf_svm.train(training_set)
     res_of_dt.append(cal_acc(clf_dt.classify_many(testing_features), testing_labels))
     print("Accuracy of Decision Tree: %f" %(cal_acc(clf_dt.classify_many(testing_features), testing_labels)))
     res_of_rf.append(cal_acc(clf_rf.classify_many(testing_features), testing_labels))
     print("Accuracy of Random Forest: %f" %(cal_acc(clf_rf.classify_many(testing_features), testing_labels)))
+    res_of_lr.append(cal_acc(clf_lr.classify_many(testing_features), testing_labels))
+    print("Accuracy of Random Forest: %f" %(cal_acc(clf_lr.classify_many(testing_features), testing_labels)))
+    res_of_svm.append(cal_acc(clf_svm.classify_many(testing_features), testing_labels))
+    print("Accuracy of Random Forest: %f" %(cal_acc(clf_svm.classify_many(testing_features), testing_labels)))
 
 print("Average Accuracy of Decision Tree: %f" %(statistics.mean(res_of_dt)))
 print("Average Accuracy of Random Forest: %f" %(statistics.mean(res_of_rf)))
+print("Average Accuracy of Logistic Regression: %f" %(statistics.mean(res_of_lr)))
+print("Average Accuracy of Support Vector Machine: %f" %(statistics.mean(res_of_svm)))
+
+
+'''
+Citations:
+1. Bird, Steven, Edward Loper and Ewan Klein (2009), Natural Language Processing with Python. O’Reilly Media Inc.
+2. Scikit-learn: Machine Learning in Python, Pedregosa et al., JMLR 12, pp. 2825-2830, 2011.
+'''
