@@ -32,8 +32,10 @@ def cal_acc(list1, list2):
 features = []
 labels = []
 for sentence in csv_content:
-    features.append( dict( a = sentence[7], b = sentence[8], c = sentence[12], d = sentence[13], 
-    e = sentence[14], f = sentence[17], g = sentence[19]))
+    features.append( dict( a = sentence[2], b = sentence[3], c = sentence[4], d = sentence[5], 
+    e = sentence[6], f = sentence[7], g = sentence[8], h =  sentence[9], i = sentence[10], j = sentence[11],
+    k = sentence[12], l = sentence[13], m = sentence[14], n = sentence[15], o = sentence[16], p = sentence[17],
+    q = sentence[18], r = sentence[19], s = sentence[20], t = sentence[21]) )
     labels.append(sentence[1])
 print("Dataset Loaded.")
 
