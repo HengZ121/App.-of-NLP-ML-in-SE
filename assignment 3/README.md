@@ -13,30 +13,30 @@ Citations:
 Initial Running Result:
 
 1st time try:
-Average Accuracy of Decision Tree: 0.794545
-Average Accuracy of Random Forest: 0.830909
-Average Accuracy of Logistic Regression: 0.816364
-Average Accuracy of Support Vector Machine: 0.830909
+Average Accuracy of Decision Tree: 0.794545\n
+Average Accuracy of Random Forest: 0.830909\n
+Average Accuracy of Logistic Regression: 0.816364\n
+Average Accuracy of Support Vector Machine: 0.830909\n
 
 2nd time try:
-Average Accuracy of Decision Tree: 0.805455
-Average Accuracy of Random Forest: 0.829091
-Average Accuracy of Logistic Regression: 0.816364
-Average Accuracy of Support Vector Machine: 0.830909
+Average Accuracy of Decision Tree: 0.805455\n
+Average Accuracy of Random Forest: 0.829091\n
+Average Accuracy of Logistic Regression: 0.816364\n
+Average Accuracy of Support Vector Machine: 0.830909\n
 
 ----------------------------------------------------
 SMOTE added: (We can see a decline here)
 
 1st time try
-Average Accuracy of Decision Tree: 0.630909
-Average Accuracy of Random Forest: 0.649091
-Average Accuracy of Logistic Regression: 0.665455
-Average Accuracy of Support Vector Machine: 0.830909
+Average Accuracy of Decision Tree: 0.630909\n
+Average Accuracy of Random Forest: 0.649091\n
+Average Accuracy of Logistic Regression: 0.665455\n
+Average Accuracy of Support Vector Machine: 0.830909\n
 
 2nd time try:
-Average Accuracy of Decision Tree: 0.612727
-Average Accuracy of Random Forest: 0.680000
-Average Accuracy of Logistic Regression: 0.663636
-Average Accuracy of Support Vector Machine: 0.830909
+Average Accuracy of Decision Tree: 0.612727\n
+Average Accuracy of Random Forest: 0.680000\n
+Average Accuracy of Logistic Regression: 0.663636\n
+Average Accuracy of Support Vector Machine: 0.830909\n
 
 -----------------------------------------------------
