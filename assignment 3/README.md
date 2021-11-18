@@ -1,7 +1,9 @@
 Environment:
 Python 3.9.8
     with Scikit-learn version 1.0.1
-    and NLKT 3.6.5
+    and Imbalanced-learn version 0.8.1
+    and NLKT version 3.6.5
+    and pandas version 1.3.4
 
 Citations:
 1. Bird, Steven, Edward Loper and Ewan Klein (2009), Natural Language Processing with Python. O’Reilly Media Inc.
@@ -22,3 +24,16 @@ Average Accuracy of Random Forest: 0.829091
 Average Accuracy of Logistic Regression: 0.816364
 Average Accuracy of Support Vector Machine: 0.830909
 ----------------------------------------------------
+SMOTE added: (We can see a decline here)
+
+1st time try
+Average Accuracy of Decision Tree: 0.630909
+Average Accuracy of Random Forest: 0.649091
+Average Accuracy of Logistic Regression: 0.665455
+Average Accuracy of Support Vector Machine: 0.830909
+
+2nd time try:
+Average Accuracy of Decision Tree: 0.612727
+Average Accuracy of Random Forest: 0.680000
+Average Accuracy of Logistic Regression: 0.663636
+Average Accuracy of Support Vector Machine: 0.830909

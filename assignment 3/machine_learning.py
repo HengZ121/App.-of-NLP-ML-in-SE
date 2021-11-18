@@ -9,6 +9,9 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from nltk.classify.scikitlearn import SklearnClassifier
 
+__author__ = "Heng Zhang"
+__email__ = "hzhan274@uOttawa.ca"
+
 ### Read data from csv
 csv_content = []
 with open ("result.csv", 'r') as file:
@@ -22,7 +25,7 @@ with open ("result.csv", 'r') as file:
 def cal_acc(list1, list2):
     counter = 0
     if len(list1) != len(list2):
-        print("Imbalanced inputs, please check if you have sent the original labels and predicted labels to this function!")
+        print("Insufficient labels/classification results, please check two arrays inputted!")
     for x in range(0,len(list1)):
         if list1[x] == list2[x]:
             counter = counter +1
