@@ -13,16 +13,16 @@ Citations:
 Initial Running Result:
 
 1st time try:
-Average Accuracy of Decision Tree: 0.794545\n
-Average Accuracy of Random Forest: 0.830909\n
-Average Accuracy of Logistic Regression: 0.816364\n
-Average Accuracy of Support Vector Machine: 0.830909\n
+Average Accuracy of Decision Tree: 0.794545 |
+Average Accuracy of Random Forest: 0.830909 |
+Average Accuracy of Logistic Regression: 0.816364|
+Average Accuracy of Support Vector Machine: 0.830909|
 
 2nd time try:
-Average Accuracy of Decision Tree: 0.805455\n
-Average Accuracy of Random Forest: 0.829091\n
-Average Accuracy of Logistic Regression: 0.816364\n
-Average Accuracy of Support Vector Machine: 0.830909\n
+Average Accuracy of Decision Tree: 0.805455|
+Average Accuracy of Random Forest: 0.829091|
+Average Accuracy of Logistic Regression: 0.816364|
+Average Accuracy of Support Vector Machine: 0.830909|
 
 ----------------------------------------------------
 SMOTE added: (We can see a decline here)
