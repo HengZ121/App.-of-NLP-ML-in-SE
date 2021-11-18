@@ -23,6 +23,7 @@ Average Accuracy of Decision Tree: 0.805455
 Average Accuracy of Random Forest: 0.829091
 Average Accuracy of Logistic Regression: 0.816364
 Average Accuracy of Support Vector Machine: 0.830909
+
 ----------------------------------------------------
 SMOTE added: (We can see a decline here)
 
@@ -37,3 +38,5 @@ Average Accuracy of Decision Tree: 0.612727
 Average Accuracy of Random Forest: 0.680000
 Average Accuracy of Logistic Regression: 0.663636
 Average Accuracy of Support Vector Machine: 0.830909
+
+-----------------------------------------------------
