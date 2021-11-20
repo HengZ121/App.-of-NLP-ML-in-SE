@@ -116,7 +116,7 @@ for x in range(0,10):
     f7 =[]
     f1 = []
     for elem in training_features:
-        f1.append(elem[1])
+        f1.append(elem[0])
         f7.append(decode_str(elem[6]))
     fig, ax = plt.subplots(2)
     ax[0].scatter(f1, f7, color = "red")
@@ -133,7 +133,7 @@ for x in range(0,10):
     f7 =[]
     f1 = []
     for elem in training_features:
-        f1.append(elem[1])
+        f1.append(elem[0])
         f7.append(decode_str(elem[6]))
     ax[1].scatter(f1, f7, color = "blue")
     ax[1].set_yticklabels([])

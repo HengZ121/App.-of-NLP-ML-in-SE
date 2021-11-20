@@ -56,3 +56,12 @@ Average Accuracy of Logistic Regression: 0.663636
 Average Accuracy of Support Vector Machine: 0.830909
 
 -----------------------------------------------------
+Modifying Hyperparameters: (All models perform equally well in this case)
+
+Average Accuracy of Decision Tree: 0.830909
+
+Average Accuracy of Random Forest: 0.830909
+
+Average Accuracy of Logistic Regression: 0.830909
+
+Average Accuracy of Support Vector Machine: 0.830909
