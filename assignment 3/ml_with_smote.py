@@ -111,32 +111,62 @@ for x in range(0,10):
         training_features.append(extracted_features[y])
         training_labels.append(extracted_labels[y])
 
-    ### Make a scatterplot comparsion on feature 7 (because it has been hard modified)
+    ### Scatter Diagram 1
+    ### Distribution of feature 7 Over labels
     f7 =[]
-    f1 = []
+    label = []
+    for elem in training_labels:
+        label.append(elem)
     for elem in training_features:
-        f1.append(elem[0])
         f7.append(decode_str(elem[6]))
-    fig, ax = plt.subplots(2)
-    ax[0].scatter(f1, f7, color = "red")
-    ax[0].set_yticklabels([])
-    ax[0].set_title("feature 7 (y) & feature 1 (x) before SMOTE")
+    fig, (ax1, ax2) = plt.subplots(2)
+    ax1.scatter(label, f7, color = "red", s = 3)
+    ax1.set_yticklabels([])
+    ax1.set_title("feature 7 (y) & label (x) before SMOTE")
     fig.set_figheight(15)
     fig.set_figwidth(10)
+
+    # ### Distribution of feature 7 over feature 1
+    # f7 =[]
+    # f1 = []
+    # for elem in training_features:
+    #     f1.append(decode_str(elem[0]))
+    #     f7.append(decode_str(elem[6]))
+    # fig, ax = plt.subplots(2)
+    # ax[0].scatter(f1, f7, color = "red")
+    # ax[0].set_yticklabels([])
+    # ax[0].set_title("feature 7 (y) & feature 1 (x) before SMOTE")
+    # fig.set_figheight(15)
+    # fig.set_figwidth(10)
+    
+
 
 
     ### Apply SMOTE on training set
     training_features, training_labels = SMOTE(sampling_strategy = "minority").fit_resample(training_features, training_labels)
     print("SMOTE is done.")
-    
+
+    ### Scatter Diagram 2
+    ### Distribution of feature 7 over feature 1
     f7 =[]
-    f1 = []
+    label = []
+    for elem in training_labels:
+        label.append(elem)
     for elem in training_features:
-        f1.append(elem[0])
         f7.append(decode_str(elem[6]))
-    ax[1].scatter(f1, f7, color = "blue")
-    ax[1].set_yticklabels([])
-    ax[1].set_title("feature 7 (y) & feature 1 (x) after SMOTE")
+    ax2.scatter(label, f7, color = "blue", s = 3)
+    ax2.set_yticklabels([])
+    ax2.set_title("feature 7 (y) & label (x) after SMOTE")
+
+    # ### Distribution of feature 7 over feature 1
+    # f7 =[]
+    # f1 = []
+    # for elem in training_features:
+    #     f1.append(decode_str(elem[0]))
+    #     f7.append(decode_str(elem[6]))
+    # ax[1].scatter(f1, f7, color = "blue")
+    # ax[1].set_yticklabels([])
+    # ax[1].set_title("feature 7 (y) & feature 1 (x) after SMOTE")
 
 
 
@@ -175,9 +205,9 @@ for x in range(0,10):
     clf_svm = clf_svm.train(training_set)
 
     # Diagram Comments
-    fig.text(0.3,0.55,("Accuracy of Decision Tree (after SMOTE): %f\nAccuracy of Random Forest (after SMOTE): %f\n"
+    ax2.text(0.3,0.55,("Accuracy of Decision Tree (after SMOTE): %f\nAccuracy of Random Forest (after SMOTE): %f\n"
         "Accuracy of Logistic Regression (after SMOTE): %f\n"
-        "Accuracy of Support Vector Machine (after SMOTE): %f\n |\n |\n v" 
+        "Accuracy of Support Vector Machine (after SMOTE): %f" 
         %(cal_acc(clf_dt.classify_many(testing_features_d), testing_labels), 
         cal_acc(clf_rf.classify_many(testing_features_d), testing_labels), 
         cal_acc(clf_lr.classify_many(testing_features_d), testing_labels), 

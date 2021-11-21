@@ -5,9 +5,13 @@ Python 3.9.8
     and NLKT version 3.6.5
     and pandas version 1.3.4
 
+result.csv is the feature metrix, which was extracted from A2, used to test classification models
+
 Citations:
 1. Bird, Steven, Edward Loper and Ewan Klein (2009), Natural Language Processing with Python. O’Reilly Media Inc.
-2. Scikit-learn: Machine Learning in Python, Pedregosa et al., JMLR 12, pp. 2825-2830, 2011.
+2. Pedregosa et al., Scikit-learn: Machine Learning in Python, JMLR 12, pp. 2825-2830, 2011.
+3. Guillaume Lemaitre, Fernando Nogueira and Christos K. Aridas, Imbalanced-learn: A Python Toolbox to Tackle the 
+    Curse of Imbalanced Datasets in Machine Learning. Journal of Machine Learning Research, 2017.
 
 ----------------------------------------------------
 Initial Running Result:
