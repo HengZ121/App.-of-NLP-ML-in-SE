@@ -1,5 +1,4 @@
 import csv
-import numpy
 import statistics
 from sklearn import tree
 from sklearn.svm import SVC

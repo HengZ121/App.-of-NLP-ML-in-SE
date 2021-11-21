@@ -1,5 +1,4 @@
 import csv
-import numpy
 import warnings
 import statistics
 import pandas as pd
@@ -141,14 +140,14 @@ for x in range(0,10):
 
 
 
-    trf = []
+    trf = [] ### Training Features
     counter = 0
     for elem in training_features:
         trf.append([])
         for elem2 in elem:
             trf[counter].append(decode_str(elem2))
         counter = counter + 1
-    tef=[]
+    tef = [] ### Testing Features
     counter = 0
     for elem in testing_features:
         tef.append([])
