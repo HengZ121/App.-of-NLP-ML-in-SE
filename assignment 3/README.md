@@ -65,3 +65,101 @@ Average Accuracy of Random Forest: 0.830909
 Average Accuracy of Logistic Regression: 0.830909
 
 Average Accuracy of Support Vector Machine: 0.830909
+
+
+Entire Script's Output:
+Dataset Loaded.
+#1 iteration of 10 fold cross val:
+Examining Decision Tree
+The Accuracy of Decision Tree with C (0.1) and M (2) is: 0.800000 , which is the best case
+Examining Random Forest
+The Accuracy of Random Forest with I (1000) and K (50) is: 0.800000 , which is the best case
+Examining SVM
+The Accuracy of SVM with gamma (857) and K (857) is: 0.800000 , which is the best case
+Examining Logistic Regression
+The Accuracy of Logistic Regression with ridge (900) is: 0.800000 , which is the best case
+#2 iteration of 10 fold cross val:
+Examining Decision Tree
+The Accuracy of Decision Tree with C (0.1) and M (2) is: 0.981818 , which is the best case
+Examining Random Forest
+The Accuracy of Random Forest with I (1000) and K (50) is: 0.981818 , which is the best case
+Examining SVM
+The Accuracy of SVM with gamma (857) and K (857) is: 0.981818 , which is the best case
+Examining Logistic Regression
+The Accuracy of Logistic Regression with ridge (900) is: 0.981818 , which is the best case
+#3 iteration of 10 fold cross val:
+Examining Decision Tree
+The Accuracy of Decision Tree with C (0.1) and M (2) is: 0.981818 , which is the best case
+Examining Random Forest
+The Accuracy of Random Forest with I (1000) and K (50) is: 0.981818 , which is the best case
+Examining SVM
+The Accuracy of SVM with gamma (857) and K (857) is: 0.981818 , which is the best case
+Examining Logistic Regression
+The Accuracy of Logistic Regression with ridge (900) is: 0.981818 , which is the best case
+#4 iteration of 10 fold cross val:
+Examining Decision Tree
+The Accuracy of Decision Tree with C (0.1) and M (2) is: 0.818182 , which is the best case
+Examining Random Forest
+The Accuracy of Random Forest with I (1000) and K (50) is: 0.818182 , which is the best case
+Examining SVM
+The Accuracy of SVM with gamma (857) and K (857) is: 0.818182 , which is the best case
+Examining Logistic Regression
+The Accuracy of Logistic Regression with ridge (900) is: 0.818182 , which is the best case
+#5 iteration of 10 fold cross val:
+Examining Decision Tree
+The Accuracy of Decision Tree with C (0.1) and M (2) is: 0.781818 , which is the best case
+Examining Random Forest
+The Accuracy of Random Forest with I (1000) and K (50) is: 0.763636 , which is the best case
+Examining SVM
+The Accuracy of SVM with gamma (857) and K (857) is: 0.781818 , which is the best case
+Examining Logistic Regression
+The Accuracy of Logistic Regression with ridge (900) is: 0.781818 , which is the best case
+#6 iteration of 10 fold cross val:
+Examining Decision Tree
+The Accuracy of Decision Tree with C (0.1) and M (2) is: 0.690909 , which is the best case
+Examining Random Forest
+The Accuracy of Random Forest with I (1000) and K (50) is: 0.690909 , which is the best case
+Examining SVM
+The Accuracy of SVM with gamma (857) and K (857) is: 0.690909 , which is the best case
+Examining Logistic Regression
+The Accuracy of Logistic Regression with ridge (900) is: 0.690909 , which is the best case
+#7 iteration of 10 fold cross val:
+Examining Decision Tree
+The Accuracy of Decision Tree with C (0.1) and M (2) is: 0.690909 , which is the best case
+Examining Random Forest
+The Accuracy of Random Forest with I (1000) and K (50) is: 0.690909 , which is the best case
+Examining SVM
+The Accuracy of SVM with gamma (857) and K (857) is: 0.690909 , which is the best case
+Examining Logistic Regression
+The Accuracy of Logistic Regression with ridge (900) is: 0.690909 , which is the best case
+#8 iteration of 10 fold cross val:
+Examining Decision Tree
+The Accuracy of Decision Tree with C (0.1) and M (2) is: 0.672727 , which is the best case
+Examining Random Forest
+The Accuracy of Random Forest with I (1000) and K (50) is: 0.672727 , which is the best case
+Examining SVM
+The Accuracy of SVM with gamma (857) and K (857) is: 0.672727 , which is the best case
+Examining Logistic Regression
+The Accuracy of Logistic Regression with ridge (900) is: 0.672727 , which is the best case
+#9 iteration of 10 fold cross val:
+Examining Decision Tree
+The Accuracy of Decision Tree with C (0.1) and M (2) is: 0.963636 , which is the best case
+Examining Random Forest
+The Accuracy of Random Forest with I (1000) and K (50) is: 0.963636 , which is the best case
+Examining SVM
+The Accuracy of SVM with gamma (857) and K (857) is: 0.963636 , which is the best case
+Examining Logistic Regression
+The Accuracy of Logistic Regression with ridge (900) is: 0.963636 , which is the best case
+#10 iteration of 10 fold cross val:
+Examining Decision Tree
+The Accuracy of Decision Tree with C (0.1) and M (2) is: 0.927273 , which is the best case
+Examining Random Forest
+The Accuracy of Random Forest with I (1000) and K (50) is: 0.945455 , which is the best case
+Examining SVM
+The Accuracy of SVM with gamma (857) and K (857) is: 0.927273 , which is the best case
+Examining Logistic Regression
+The Accuracy of Logistic Regression with ridge (900) is: 0.927273 , which is the best case
+Average Accuracy of Decision Tree: 0.830909
+Average Accuracy of Random Forest: 0.830909
+Average Accuracy of Logistic Regression: 0.830909
+Average Accuracy of Support Vector Machine: 0.830909

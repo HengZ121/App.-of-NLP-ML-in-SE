@@ -41,7 +41,7 @@ def cal_acc(list1, list2):
             counter = counter +1
     return counter/len(list1)
 
-### Define a method which takes an array and an output type
+### Define a method which takes an array and outputs an dictionary
 def dict_of(feature_list):
     dic = dict()
     for elem in feature_list:
@@ -173,6 +173,8 @@ for x in range(0,10):
     clf_rf = clf_rf.train(training_set)
     clf_lr = clf_lr.train(training_set)
     clf_svm = clf_svm.train(training_set)
+
+    # Diagram Comments
     fig.text(0.3,0.55,("Accuracy of Decision Tree (after SMOTE): %f\nAccuracy of Random Forest (after SMOTE): %f\n"
         "Accuracy of Logistic Regression (after SMOTE): %f\n"
         "Accuracy of Support Vector Machine (after SMOTE): %f\n |\n |\n v" 
@@ -181,6 +183,7 @@ for x in range(0,10):
         cal_acc(clf_lr.classify_many(testing_features_d), testing_labels), 
         cal_acc(clf_svm.classify_many(testing_features_d), testing_labels))))
     plt.show()
+
     res_of_dt.append(cal_acc(clf_dt.classify_many(testing_features_d), testing_labels))
     print("Accuracy of Decision Tree: %f" %(cal_acc(clf_dt.classify_many(testing_features_d), testing_labels)))
     res_of_rf.append(cal_acc(clf_rf.classify_many(testing_features_d), testing_labels))
